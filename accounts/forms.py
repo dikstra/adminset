@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-# update by guohongze@126.com
 from django import forms
 from django.contrib import auth
 from accounts.models import UserInfo
@@ -68,21 +67,6 @@ class ChangePasswordForm(forms.Form):
             self.user.save()
         return self.user
 
-# class PermissionListForm(forms.ModelForm):
-#     class Meta:
-#         model = PermissionList
-#         exclude = ("id",)
-#         widgets = {
-#             'name': forms.TextInput(attrs={'class': 'form-control'}),
-#             'url': forms.TextInput(attrs={'class': 'form-control'}),
-#         }
-#
-#     def __init__(self, *args, **kwargs):
-#         super(PermissionListForm, self).__init__(*args, **kwargs)
-#         self.fields['name'].label = u'名 称'
-#         self.fields['name'].error_messages = {'required':u'请输入名称'}
-#         self.fields['url'].label = u'URL'
-#         self.fields['url'].error_messages = {'required':u'请输入URL'}
 
 
 

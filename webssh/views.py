@@ -12,13 +12,18 @@ from .models import ssh_info
 @login_required()
 def index_view(request):
     temp_name = "webssh/webssh-header.html"
+    page_len = request.GET.get('page_len', '')
+    keyword = request.GET.get('keyword', '')
     keyword1="public_ip"
     keyword2="private_ip"
     keyword3="ssh_port"
     keyword4="ssh_user"
     keyword5="ssh_password"
-    ipaddress = Host.objects.values('id',keyword1,keyword2,keyword3,keyword4,keyword5)[0:]
-    # userinfo = ssh_info.objects.all()
+    ip_find = []
+    ip_find = Host.objects.values('id', keyword1, keyword2, keyword3, keyword4, keyword5)[0:]
+    if keyword:
+        ip_find = ip_find.filter(Q(public_ip__contains=keyword)|Q(private_ip__contains=keyword)|Q(ssh_user__contains=keyword))
+    ip_find, p, ipaddress, page_range, current_page, show_first, show_end, end_page = pages(ip_find, request)
     return render(request, 'webssh/index.html',locals())
 
 @login_required()
@@ -34,7 +39,6 @@ def edit_view(request, ids):
             status = 2
     else:
         af = WebsshForm(instance=obj)
-        # import pdb;pdb.set_trace()
 
     return render(request, 'webssh/webssh_edit.html', locals())
 

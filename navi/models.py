@@ -11,7 +11,7 @@ PROTOCOL = (
     (str(u"HTTP"), u"HTTP"),
     (str(u"HTTPS"), u"HTTPS"),
     (str(u"TCP"), u"TCP"),
-    (str(u"TCP"), u"TCP"),
+    (str(u"UDP"), u"UDP"),
     (str(u"其它"), u"其它")
     )
 

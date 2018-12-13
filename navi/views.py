@@ -22,8 +22,6 @@ def index(request):
         domain_find =domain_manager.objects.filter(domain=domain_ids)
     else:
         domain_find=domain_manager.objects.all()
-    for domain in domain_find:
-        pass
     if keyword:
         domain_find = domain_find.filter(Q(domain__contains=keyword)|Q(ipaddress__contains=keyword)|Q(protocol__contains=keyword))
     domain_list, p, domain, page_range, current_page, show_first, show_end, end_page = pages(domain_find, request)
@@ -40,8 +38,6 @@ def manage(request):
 @login_required()
 def add(request):
     temp_name = "navi/navi-header.html"
-    # import pdb;
-    # pdb.set_trace()
     if request.method == "POST":
         a_form = DomainForm(request.POST)
         if a_form.is_valid():

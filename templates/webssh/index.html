@@ -30,19 +30,13 @@
             <div class="box">
                 <div class="box-header">
                 <div class="col-sm-5" style="padding-left: 0px">
-                            <label>
-                                <select name="domain" class="form-control m-b input-sm" onchange="change_info()">
-                                    <option value="">ip搜索</option>
-                                        <option value="#">#</option>
-                                </select>
-                            </label>
                         </div>
-                    <div class="col-sm-4" style="padding-right: 0;">
+                    <div class="col-sm-4 pull-center" style="padding-right: 0;">
                              <div class="input-group inline-group padding-right: 10px">
                                 <input type="text" class="form-control m-b " id="search_input" name="keyword" value="{{ keyword }}" placeholder="Search">
                                 <input type="text" style="display: none">
                                 <div class="input-group-btn ">
-                                    <button id='search_btn' href="#?search=true" type="button" class="btn btn-primary "  onclick="change_info()">
+                                    <button id='search_btn' href="{% url 'web' %}?search=true" type="button" class="btn btn-primary "  onclick="change_info()">
                                         <b>&nbsp;搜索&nbsp;</b>
                                     </button>
                                 </div>
@@ -81,7 +75,7 @@
                             <option value="200">200</option>
                         {% endifequal %}
                     </select>
-                            </label>
+                </label>
             </div>
                 <div class="box-body">
                   <table class="table table-striped table-bordered" id="hostfrom">
@@ -92,30 +86,20 @@
                                     <th>端口</th>
                                     <th>用户名</th>
 {#                                    <th>密码</th>#}
-                                    <th>备注</th>
                                     <th class="text-center">功能</th>
+                                    <th>备注</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for ip in ipaddress %}
+                                {% for ip in ipaddress.object_list %}
                                     <tr class="even gradeX">
-{#                                        <td><li style="display:none">{{ ip.id }}</li></td>#}
                                         <td>{{ ip.public_ip }}</td>
-                                        <td>   <span class="host">{{ ip.private_ip }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="port">{{ ip.ssh_port }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="username">{{ ip.ssh_user }}</span><span class="password" style="display:none;">{{ ip.ssh_password }}</span>
-                                        </td>
-{#                                        <td>#}
-{#                                            <span class="password">{{ ip.ssh_password }}</span>#}
-{#                                        </td>#}
-
+                                        <td><span class="host">{{ ip.private_ip }}</span></td>
+                                        <td><span class="port">{{ ip.ssh_port }}</span></td>
+                                        <td><span class="username">{{ ip.ssh_user }}</span><span class="password" style="display:none;">{{ ip.ssh_password }}</span></td>
                                         <td class="text-center" data-editable='false'>
                                             <a href="#"><li class="btn btn-sm btn-info" onclick="return tanchu(this.value)" value="{{ ip.id }}">编辑</li></a>
-                                            <a  href="#"><li class="btn btn-sm btn-danger asset_del"  onclick="connect(event)">SSH登陆</li></a>
+                                            <a href="#"><li class="btn btn-sm btn-danger asset_del"  onclick="connect(event)">SSH登陆</li></a>
                                         </td>
                                     </tr>
                                {% endfor %}
@@ -160,7 +144,6 @@ function tanchu(n){
   });
 }
 </script>
-
 <script type="application/javascript">
     $(function () {
         $("#ssh_form").valid([
@@ -170,5 +153,16 @@ function tanchu(n){
             {name: "password", type: "password"},
         ]);
     })
+</script>
+<script>
+    function change_info(){
+        var args = $("#ssh_form").serialize();
+        window.location = "{% url 'web' %}?" + args
+    }
+    $("#search_input").keydown(function(e) {
+        if (e.keyCode == 13) {
+            change_info()
+        }
+        });
 </script>
 {% endblock %}

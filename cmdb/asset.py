@@ -1,11 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import csv
-import datetime
 import sys
-
-
 from cmdb.api import get_object, pages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -28,7 +24,6 @@ def asset(request):
     asset_types = ASSET_TYPE
     asset_status = ASSET_STATUS
     cloud_ids = request.GET.get('cloud', '')
-    # import pdb;pdb.set_trace()
     page_len = request.GET.get('page_len', '')
     asset_type = request.GET.get('asset_type', '')
     status = request.GET.get('status', '')
@@ -49,13 +44,6 @@ def asset(request):
         asset_find = asset_find.filter(status__contains=status)
     if keyword:
         asset_find = asset_find.filter(Q(hostname__contains=keyword)|Q(public_ip__contains=keyword)|Q(private_ip__contains=keyword)|Q(project__project_name__contains=keyword)|Q(cloud__cloud_ids__contains=keyword))
-            # Q(os__contains=keyword) |
-            # Q(cpu_num__contains=keyword) |
-            # Q(memory__contains=keyword) |
-            # Q(hdd_disk__contains=keyword) |
-            # Q(sdd_disk__contains=keyword) |
-# Q(project__contains=keyword))
-            # Q(memo__contains=keyword))
     assets_list, p, assets, page_range, current_page, show_first, show_end, end_page = pages(asset_find, request)
     return render(request, 'cmdb/index.html', locals())
 
@@ -118,10 +106,4 @@ def asset_edit(request, ids):
 @login_required
 def server_detail(request, ids):
     host = Host.objects.get(id=ids)
-    # import pdb;pdb.set_trace()
-    # try:
-    #     hdd_disk=host.hdd_disk
-    #     sdd_disk=host.sdd_disk
-    # except Exception as e:
-    #     print(e)
     return render(request, 'cmdb/server_detail.html', locals())

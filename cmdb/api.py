@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-# 2017.3 update by guohongze@126.com
 from django.http import HttpResponse
 from cmdb.models import Host
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
