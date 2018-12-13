@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load mytags %}
+{% block self_head_css_js %}
+    <script src="/static/layer/layer.js"></script>
+    <script src="/static/js/base.js"></script>
+    <script src="/static/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.bootstrap.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.bootstrap.css"></script>
+
+{% endblock %}
+{% block content %}
+<script>
+    window.onload=init;
+    function init() {
+        showhide(1);
+    }
+    function showhide(n) {
+        var box = document.getElementById("navi");
+        box.className="active";
+    }
+</script>
+<script>
+    function change_info(){
+        var args = $("#domain_form").serialize();
+        window.location = "{% url 'navi' %}?" + args
+    }
+    $("#search_input").keydown(function(e) {
+        if (e.keyCode == 13) {
+            change_info()
+        }
+        });
+</script>
+<script>
+    $(document).ready(function(){
+        $('.domain_del').click(function(){
+            var row = $(this).closest('tr');
+            if (confirm("确定删除?")) {
+                $.get(
+                        $(this).attr('value'),
+                        {},
+                        function (data) {
+                            row.remove()
+                        }
+                )
+            }
+        });
+    });
+</script>
+
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+
+    </section>
+      <section class="content">
+        <form action="" method="post" id="domain_form">
+        {% csrf_token %}
+            <div class="box">
+                <div class="box-header">
+                    <div class="col-sm-2" style="padding-left: 0">
+						 <a href="{% url 'add' %}"><li class="btn btn-success" ><b>添加域名</b></li></a>
+                  </div>
+                <div class="col-sm-5" style="padding-left: 0px">
+                            <label>
+                                <select name="domain" class="form-control m-b input-sm" onchange="change_info()">
+                                    <option value="">域名</option>
+                                    {% for domain in domain_find %}
+                                        {% ifequal domain.domain|int2str domain_ids %}
+                                              <option value="{{domain.domain}}" selected>{{ domain.domain }}</option>
+                                        {% else %}
+                                              <option value="{{domain.domain}}">{{ domain.domain }}</option>
+                                        {% endifequal %}
+                                    {% endfor %}
+                                </select>
+                            </label>
+                        </div>
+                    <div class="col-sm-4" style="padding-right: 0;">
+                             <div class="input-group inline-group padding-right: 10px">
+                                <input type="text" class="form-control m-b " id="search_input" name="keyword" value="{{ keyword }}" placeholder="Search">
+                                <input type="text" style="display: none">
+                                <div class="input-group-btn ">
+                                    <button id='search_btn' href="{% url 'navi' %}?search=true" type="button" class="btn btn-primary "  onclick="change_info()">
+                                        <b>&nbsp;搜索&nbsp;</b>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                <!-- /.box-header -->
+            <div class="col-md-5">
+
+                <label for="page_len">
+                    <select name="page_len" id="page_len" class="form-control m-b input-sm" onchange="change_info()">
+                        {% ifequal page_len '10' %}
+                            <option value="10" selected>10</option>
+                        {% else %}
+                            <option value="10">10</option>
+                        {% endifequal %}
+                        {% ifequal page_len '20' %}
+                            <option value="20" selected>20</option>
+                        {% else %}
+                            <option value="20">20</option>
+                        {% endifequal %}
+                        {% ifequal page_len '50' %}
+                            <option value="50" selected>50</option>
+                        {% else %}
+                            <option value="50">50</option>
+                        {% endifequal %}
+                        {% ifequal page_len '100' %}
+                            <option value="100" selected>100</option>
+                        {% else %}
+                            <option value="100">100</option>
+                        {% endifequal %}
+                        {% ifequal page_len '200' %}
+                            <option value="200" selected>200</option>
+                        {% else %}
+                            <option value="200">200</option>
+                        {% endifequal %}
+                    </select>
+                            </label>
+            </div>
+                <div class="box-body">
+                  <table class="table table-striped table-bordered" id="dataform">
+                      <thead>
+                        <tr>
+                            <th>
+                                <input id="checkall" type="checkbox" class="i-checks" name="checkall" value="checkall" data-editable='false' onclick="check_all('domain_form')">
+                            </th>
+                                    <th>域名</th>
+                                    <th>域名对应ip</th>
+                                    <th>协议</th>
+                                    <th>前端侦听端口</th>
+                                    <th>后端侦听端口</th>
+                                    <th>备注</th>
+                                    <th class="text-center">功能</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for domain in domain.object_list %}
+                                    <tr class="even gradeX">
+                                        <td><input type="checkbox" id="id" class="i-checks" value="{{ domain.id }}" name="id" /></td>
+                                        <td>{{ domain.domain }}</td>
+                                        <td>{{ domain.ipaddress }}</td>
+                                        <td>{{ domain.protocol }}</td>
+                                        <td>{{ domain.front_listen_port }}</td>
+                                        <td>{{ domain.back_end_port }}</td>
+                                        <td>{{ domain.demo }}</td>
+                                        <td class="text-center" data-editable='false'>
+                                        <a href="#"><li class="btn btn-sm btn-info" onclick="return tanchu(this.value)" value="{{ domain.id }}">编辑</li></a>
+                                        <a value="{% url 'delete' %}?id={{ domain.id }}" class="btn btn-sm btn-danger domain_del">删除</a>
+                                    </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                  </table>
+                <div class="row" style="width: auto">
+                    {% include 'paginator.html' %}
+                </div>
+                    <div class="btn-group">
+                        <input type="button" id="domain_del" class="btn btn-danger"   name="del_button" value="删除域名"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+
+
+  </div>
+
+<script>
+    $('#domain_del').click(function () {
+        var asset_id_all = getIDall();
+        if (asset_id_all == ''){
+            alert("请至少选择一行!");
+            return false;
+        }
+        if (confirm("确定删除?")) {
+            $.ajax({
+                type: "post",
+                data: {asset_id_all: asset_id_all,csrfmiddlewaretoken: '{{ csrf_token }}'},
+                url: "{% url 'delete' %}?arg=batch",
+                success: function () {
+                    parent.location.reload();
+                }
+            });
+        }
+    });
+</script>
+
+<script>
+function tanchu(n){
+    layer.open({
+    type: 2,
+    title: '修改域名信息',
+    closeBtn: 1,
+    area: ['700px', '550px'],
+    shadeClose: true, //点击遮罩关闭
+    content: ['/navi/edit/' + n,],
+    end:function(){
+            var handle_status = $("#handle_status").val();
+            if ( handle_status == '1' ) {
+                layer.msg('保存成功！',{
+                    icon: 1,
+                    time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                },function(){
+                    history.go(0);
+                });
+            } else if ( handle_status == '2' ) {
+                layer.msg('修改失败！',{
+                    icon: 2,
+                    time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                },function(){
+                    history.go(0);
+                });
+            }
+        }
+  });
+}
+</script>
+{% endblock %}

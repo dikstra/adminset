@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block self_head_css_js %}
+    <script src="/static/layer/layer.js"></script>
+{#    <script src="/static/js/jquery.min.js"></script>#}
+    <script src="/static/js/term.js"></script>
+    <script src="/static/js/ws.js"></script>
+    <script src="/static/js/formvalid.js"></script>
+    <script src="/static/js/main.js"></script>
+{% endblock %}
+{% block content %}
+{#<script>#}
+{#    window.onload=init;#}
+{#    function init() {#}
+{#        showhide(1);#}
+{#    }#}
+{#    function showhide(n) {#}
+{#        var box = document.getElementById("webssh");#}
+{#        box.className="active";#}
+{#    }#}
+{#</script>#}
+
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+
+    </section>
+      <section class="content">
+        <form action="" method="post" id="ssh_form">
+        {% csrf_token %}
+            <div class="box">
+                <div class="box-header">
+                <div class="col-sm-5" style="padding-left: 0px">
+                            <label>
+                                <select name="domain" class="form-control m-b input-sm" onchange="change_info()">
+                                    <option value="">ip搜索</option>
+                                        <option value="#">#</option>
+                                </select>
+                            </label>
+                        </div>
+                    <div class="col-sm-4" style="padding-right: 0;">
+                             <div class="input-group inline-group padding-right: 10px">
+                                <input type="text" class="form-control m-b " id="search_input" name="keyword" value="{{ keyword }}" placeholder="Search">
+                                <input type="text" style="display: none">
+                                <div class="input-group-btn ">
+                                    <button id='search_btn' href="#?search=true" type="button" class="btn btn-primary "  onclick="change_info()">
+                                        <b>&nbsp;搜索&nbsp;</b>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                <!-- /.box-header -->
+            <div class="col-md-5">
+
+                <label for="page_len">
+                    <select name="page_len" id="page_len" class="form-control m-b input-sm" onchange="change_info()">
+                        {% ifequal page_len '10' %}
+                            <option value="10" selected>10</option>
+                        {% else %}
+                            <option value="10">10</option>
+                        {% endifequal %}
+                        {% ifequal page_len '20' %}
+                            <option value="20" selected>20</option>
+                        {% else %}
+                            <option value="20">20</option>
+                        {% endifequal %}
+                        {% ifequal page_len '50' %}
+                            <option value="50" selected>50</option>
+                        {% else %}
+                            <option value="50">50</option>
+                        {% endifequal %}
+                        {% ifequal page_len '100' %}
+                            <option value="100" selected>100</option>
+                        {% else %}
+                            <option value="100">100</option>
+                        {% endifequal %}
+                        {% ifequal page_len '200' %}
+                            <option value="200" selected>200</option>
+                        {% else %}
+                            <option value="200">200</option>
+                        {% endifequal %}
+                    </select>
+                            </label>
+            </div>
+                <div class="box-body">
+                  <table class="table table-striped table-bordered" id="hostfrom">
+                      <thead>
+                        <tr>
+                                    <th>公网ip</th>
+                                    <th>内网ip</th>
+                                    <th>端口</th>
+                                    <th>用户名</th>
+{#                                    <th>密码</th>#}
+                                    <th>备注</th>
+                                    <th class="text-center">功能</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ip in ipaddress %}
+                                    <tr class="even gradeX">
+{#                                        <td><li style="display:none">{{ ip.id }}</li></td>#}
+                                        <td>{{ ip.public_ip }}</td>
+                                        <td>   <span class="host">{{ ip.private_ip }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="port">{{ ip.ssh_port }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="username">{{ ip.ssh_user }}</span><span class="password" style="display:none;">{{ ip.ssh_password }}</span>
+                                        </td>
+{#                                        <td>#}
+{#                                            <span class="password">{{ ip.ssh_password }}</span>#}
+{#                                        </td>#}
+
+                                        <td class="text-center" data-editable='false'>
+                                            <a href="#"><li class="btn btn-sm btn-info" onclick="return tanchu(this.value)" value="{{ ip.id }}">编辑</li></a>
+                                            <a  href="#"><li class="btn btn-sm btn-danger asset_del"  onclick="connect(event)">SSH登陆</li></a>
+                                        </td>
+                                    </tr>
+                               {% endfor %}
+                            </tbody>
+                  </table>
+                <div id="term" align="center"></div>
+            </div>
+                <div class="row" style="width: auto">
+                    {% include 'paginator.html' %}
+                </div>
+        </form>
+    </section>
+  </div>
+<input id="handle_status" value="" hidden="hidden">
+<script>
+function tanchu(n){
+    layer.open({
+    type: 2,
+    title: '修改登陆信息',
+    closeBtn: 1,
+    area: ['700px', '550px'],
+    shadeClose: true, //点击遮罩关闭
+    content: ['/webssh/host/edit/' + n,],
+    end:function(){
+            var handle_status = $("#handle_status").val();
+            if ( handle_status == '1' ) {
+                layer.msg('保存成功！',{
+                    icon: 1,
+                    time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                },function(){
+                    history.go(0);
+                });
+            } else if ( handle_status == '2' ) {
+                layer.msg('修改失败！',{
+                    icon: 2,
+                    time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                },function(){
+                    history.go(0);
+                });
+            }
+        }
+  });
+}
+</script>
+
+<script type="application/javascript">
+    $(function () {
+        $("#ssh_form").valid([
+            {name: "host", type: "ip"},
+            {name: "port", type: "port"},
+            {name: "username", type: "username"},
+            {name: "password", type: "password"},
+        ]);
+    })
+</script>
+{% endblock %}
