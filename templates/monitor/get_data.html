@@ -1,0 +1,134 @@
+<script type="text/javascript">
+var mycpu = echarts.init(document.getElementById('cpu'));
+  mycpu.showLoading();
+setInterval(function () {
+$.get("/monitor/get/cpu/{{ hostname }}/"+timing).done(function (data) {
+    var data = JSON.parse(data);
+    mycpu.hideLoading();// 加载动画
+    mycpu.setOption({
+        title: {
+            text: 'CPU使用率'
+        },
+        toolbox: {
+            show : true,
+            feature : {
+                mark : {show: true},
+                dataView : {show: true, readOnly: false},
+                saveAsImage : {show: true}
+            }
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data:['CPU']
+        },
+        xAxis: {
+            boundaryGap: false,
+            data: data.data_time
+        },
+        yAxis: [{
+                type : 'value',
+                axisLabel : {
+                    formatter : '{value} %'
+                },
+                max: 100,
+        }],
+        series: [{
+            boundaryGap: false,
+            name: 'CPU',
+            smooth:true,
+            type: 'line',
+            symbol: 'none',
+            stack: 'a',
+            areaStyle: {
+                normal: {
+                }
+            },
+            data: data.cpu_percent,
+            label:{
+                show:true,
+                formatter: 'mem:{c}%'
+            }
+        }
+        ]
+    });
+});
+}, 10000);
+</script>
+<script type="text/javascript">
+var mymemory = echarts.init(document.getElementById('memory'));
+mymemory.showLoading();
+setInterval(function () {
+$.get("/monitor/get/mem/{{ hostname }}/"+timing).done(function (data) {
+    var data = JSON.parse(data);
+    mymemory.hideLoading();// 加载动画
+    mymemory.setOption({
+        title: {
+            text: '内存使用率'
+        },
+        tooltip: {
+            trigger: 'axis',
+            formatter:'current memory used:{c} %'
+        },
+        toolbox: {
+            feature : {
+                mark : {show: true},
+                dataView : {show: true, readOnly: false},
+                saveAsImage : {show: true}
+            }
+        },
+        legend: {
+            data:['Memory'],
+        },
+        xAxis: {
+            boundaryGap: false,
+            data: data.data_time
+        },
+        yAxis: [{
+                type : 'value',
+                axisLabel : {
+                    formatter : '{value} %'
+                },
+                max: 100
+        }],
+        series: [{
+            boundaryGap: [0, '0%'],
+            name: 'Memory',
+            smooth:true,
+            type: 'line',
+            itemStyle: {
+                normal: {
+                    color:'#009900', //自定义折点
+                    areaStyle: {
+                        color: '#009900' //自定义线条
+                    }
+                }
+            },
+            data: data.mem_used.map( function (u){
+                return  (u/data.m_total*100).toFixed(2)
+            }),
+
+        },{
+            boundaryGap: [0, '0%'],
+            name: 'Memory',
+            smooth:true,
+            type: 'line',
+            itemStyle: {
+                normal: {
+                    color:'red', //自定义折点
+                    areaStyle: {
+                        color: 'red' //自定义线条
+                    }
+                }
+            },
+            data: data.mem_used.map( function (u){
+                return  (u/data.m_total*800).toFixed(2)
+            }),
+
+        }
+        ]
+    });
+});
+}, 10000);
+</script>

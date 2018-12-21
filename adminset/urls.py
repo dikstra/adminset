@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^navi/', include('navi.urls')),
     # url(r'^admin/', admin.site.urls),
     # url(r'^setup/', include('setup.urls')),
-    # url(r'^monitor/', include('monitor.urls')),
+    url(r'^monitor/', include('monitor.urls')),
     url(r'^webssh/', include('webssh.urls')),
     url(r'^accounts/', include('accounts.urls')),
     # url(r'^appconf/', include('appconf.urls')),

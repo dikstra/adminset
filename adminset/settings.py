@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'cmdb',
     'accounts',
     'webssh',
+    'monitor',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
