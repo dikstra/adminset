@@ -32,8 +32,8 @@ class Get_sys_data(object):
         db = client[self.hostname]
         collection = db[self.monitor_data]
         now_time = int(time.time())
-        find_time = now_time-self.timing
-        # cursor = collection.find({'timestamp': {'$gte': find_time}}, {self.monitor_item: 1, "timestamp": 1}).limit(self.no)
+        find_time = (now_time-self.timing)*1000
+        # cursor = collection.find({'timestamp': {'$gte': find_time}}, {self.monitor_data: 1, "timestamp": 1}).limit(self.no)
         # cursor=collection.find_one()
         # data={}
         # for item in monitor_items:
@@ -58,17 +58,19 @@ def get_cpu(hostname, timing):
 
 def get_mem(hostname, timing):
     data_time = []
-    mem_percent = []
+    mem_used = []
     range_time = int(timing)
+    m_total=0
     mem_data = Get_sys_data(hostname, "memstat", range_time)
     for doc in mem_data.get_data():
-        unix_time = doc['timestamp']
+        unix_time = float(doc['timestamp']/1000)
         times = time.localtime(unix_time)
         dt = time.strftime("%m%d-%H:%M", times)
         data_time.append(dt)
-        m_percent = doc['used']
-        mem_percent.append(m_percent)
-    data = {"data_time": data_time, "mem_percent": mem_percent}
+        m_used = doc['used']
+        m_total=doc['total']
+        mem_used.append(m_used)
+    data = {"data_time": data_time,"mem_used":mem_used,"m_total":m_total}
     print(data)
 
 if __name__ == "__main__":
@@ -92,5 +94,5 @@ if __name__ == "__main__":
     #     pass
     # print(cpu_data)
     # print("=========")
-    # get_cpu(hostname,range_time)
+    #get_cpu(hostname,range_time)
     get_mem(hostname, range_time)
