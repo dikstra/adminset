@@ -32,18 +32,21 @@ class SSHConnection(object):
             self._sftp = paramiko.SFTPClient.from_transport(self._transport)
         self._sftp.put(localpath, remotepath)
 
+
     def exec_command(self, command):
         if self._client is None:
             self._client = paramiko.SSHClient()
             self._client._transport = self._transport
+            result=self._client.exec_command(command)
+            print(result)
         stdin, stdout, stderr = self._client.exec_command(command)
         data = stdout.read()
         if len(data) > 0:
-            print data.strip()
+            print(data.strip())
             return data
         err = stderr.read()
         if len(err) > 0:
-            print err.strip()
+            print(err.strip())
             return err
 
     def close(self):

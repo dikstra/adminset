@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 from django.shortcuts import render
 from monitor.api import Get_sys_data
 from django.contrib.auth.decorators import login_required
@@ -6,6 +8,7 @@ from cmdb.models import Host
 from django.views.decorators.csrf import csrf_exempt
 import time
 import json
+import monitor.install_monitor as install_monitor
 # Create your views here.
 
 TIME_SECTOR = (
@@ -57,11 +60,6 @@ def tree_node(request):
 @login_required()
 def host_info(request, hostname, timing):
     temp_name = "monitor/monitor-header.html"
-    # cpu_status = Get_sys_data(hostname, "cpustat", 36, 1)
-    # cpu_data = cpu_status.get_data()
-    # for n in cpu_data:
-    #     pass
-    #     print(n)
     return render(request, "monitor/host_info.html", locals())
 
 
@@ -73,6 +71,8 @@ def open_monitor(request, hostname, timing):
 @login_required()
 def close_monitor(request, hostname, timing):
     temp_name = "monitor/monitor-header.html"
+    connect=install_monitor.ssh_connect(hostname)
+    install_monitor.stop_process(connect)
     return render(request, "monitor/host_info.html", locals())
 
 @login_required()
@@ -89,7 +89,6 @@ def get_cpu(request, hostname, timing):
         c_percent = doc['percent']
         cpu_percent.append(c_percent)
     data = {"data_time": data_time, "cpu_percent": cpu_percent}
-    # print(data)
     return HttpResponse(json.dumps(data))
 
 
@@ -103,11 +102,33 @@ def get_mem(request, hostname, timing):
     for doc in mem_data.get_data():
         unix_time = float(doc['timestamp']/1000)
         times = time.localtime(unix_time)
-        dt = time.strftime("%m%d-%H:%M", times)
+        dt = time.strftime("%m/%d-%H:%M", times)
         data_time.append(dt)
         m_used = doc['used']
         m_total=doc['total']
         mem_used.append(m_used)
     data = {"data_time": data_time,"mem_used":mem_used,"m_total":m_total}
     print(data)
+    return HttpResponse(json.dumps(data))
+
+@login_required()
+def get_partition(request, hostname, timing):
+    data_time = []
+    partitionname=[]
+    partition_used=[]
+    partition_total=[]
+    range_time = int(timing)
+    partition = Get_sys_data(hostname, "partitionstat", range_time)
+    for doc in partition.get_data():
+        unix_time = float(doc['timestamp'] / 1000)
+        times = time.localtime(unix_time)
+        dt = time.strftime("%m/%d-%H:%M", times)
+        data_time.append(dt)
+        m_total = doc['total']
+        partition_name = doc['partition'].split(':')[1]
+        partitionname.append(partition_name)
+        p_used=doc['used']
+        partition_used.append(p_used)
+        partition_total.append(m_total)
+    data = {"data_time": data_time, "partition_name": partitionname, "partition_used":partition_used,"partition_total":partition_total}
     return HttpResponse(json.dumps(data))

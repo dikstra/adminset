@@ -30,7 +30,7 @@ class AssetForm(forms.ModelForm):
             'project': Select(attrs={'class': 'form-control', 'style': 'width:530px;'}),
             'ssh_port': TextInput(attrs={'class': 'form-control', 'style': 'width:530px;'}),
             'ssh_user': TextInput(attrs={'class': 'form-control', 'style': 'width:530px;'}),
-            'ssh_password': TextInput(attrs={'class': 'form-control', 'style': 'width:530px;'}),
+            # 'ssh_password': TextInput(attrs={'class': 'form-control', 'style': 'width:530px;'}),
             'owner': TextInput(attrs={'class': 'form-control', 'style': 'width:530px;'}),
             'memo': Textarea(attrs={'rows': 4, 'cols': 15, 'class': 'form-control', 'style': 'width:530px;'}),
         }

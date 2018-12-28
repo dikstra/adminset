@@ -73,10 +73,31 @@ def get_mem(hostname, timing):
     data = {"data_time": data_time,"mem_used":mem_used,"m_total":m_total}
     print(data)
 
+def get_partition(hostname, timing):
+    data_time = []
+    partitionname=[]
+    partition_used=[]
+    partition_total=[]
+    range_time = int(timing)
+    partition = Get_sys_data(hostname, "partitionstat", range_time)
+    for doc in partition.get_data():
+        unix_time = float(doc['timestamp'] / 1000)
+        times = time.localtime(unix_time)
+        dt = time.strftime("%m/%d-%H:%M", times)
+        data_time.append(dt)
+        m_total = doc['total']
+        partition_name = doc['partition'].split(':')[1]
+        partitionname.append(partition_name)
+        p_used=doc['used']
+        partition_used.append(p_used)
+        partition_total.append(m_total)
+    data = {"data_time": data_time, "partition_name": partitionname, "partition_used":partition_used,"partition_total":partition_total}
+    print(data)
+
 if __name__ == "__main__":
     TIME_SECTOR = (
                 # 3600,
-                3600,
+                360,
                 3600*3,
                 3600*5,
                 86400,
@@ -86,6 +107,7 @@ if __name__ == "__main__":
 
     range_time = TIME_SECTOR[0]
     hostname=r"szx1-personal-xiemengyun-dev-010"
+    partition=r"/dev/mapper/centos-root"
     # # client = GetSysData.connect_db()
     # # db = client[GetSysData.db]
     # cpu_data = Get_sys_data(hostname, "cpustat", range_time)
@@ -94,5 +116,6 @@ if __name__ == "__main__":
     #     pass
     # print(cpu_data)
     # print("=========")
-    #get_cpu(hostname,range_time)
-    get_mem(hostname, range_time)
+    # get_cpu(hostname,range_time)
+    # get_mem(hostname, range_time)
+    get_partition(hostname,range_time)

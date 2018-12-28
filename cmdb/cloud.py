@@ -29,7 +29,6 @@ def cloud_add(request):
             tips = u"增加失败！"
             display_control = ""
         return render(request, "cmdb/cloud_base.html", locals())
-        # return render(request, 'cmdb/cloud.html', locals())
     else:
         display_control = "none"
         cloud_form = CloudForm()
